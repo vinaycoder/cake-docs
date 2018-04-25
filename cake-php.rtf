@@ -1,0 +1,272 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green176\blue80;}
+{\*\generator Riched20 6.2.9200}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\b\f0\fs22\lang9 1) How to create a project in cake php\b0\par
+php composer.phar create-project --prefer-dist cakephp/app my_app_name\b\par
+2) where we can define configuraion of application in cake php 3\b0\par
+Ans : in app.php file we can configure \par
+'fullBaseUrl' => false,\par
+        'imageBaseUrl' => 'img/',\par
+        'cssBaseUrl' => 'css/',\par
+        'jsBaseUrl' => 'js/',\par
+\b 3 how can i call that variable in other places\par
+\b0 * use Cake\\Core\\Configure;\par
+echo Configure::read('App.imageBaseUrl');\par
+\b 4 How to write configure variable in cake3\b0\par
+Configure::write('Company.name','Pizza, Inc.');\par
+\b 5 how to read configure variable\b0\par
+Configure::read('Company.name');\par
+\b 6 what is output $_SERVER['HTTP_HOST']\b0\par
+returns the host name\par
+\b 7 how to hash the password in cake3\b0\par
+use Cake\\Auth\\DefaultPasswordHasher;\par
+   $hasher = new DefaultPasswordHasher();                                  \par
+    $formData['password']=$hasher->hash($this->request->data['new_pass']); \par
+\b 8 how to write the route\b0\par
+$routes->conntect('/home',['controller'=>'home','action'=>'index']);\par
+\b with parameters\par
+\b0 $routes->connect('/api/aqi/censorid/:arg1', ['controller' => 'Home', 'action' =>'aqi'],['pass' => ['arg1']]);\par
+\b 9 how to set viewBilder\par
+\b0  $this->viewBuilder()->setLayout('admin');\par
+\b 10 how to move function out of auth controll\par
+\b0 $this->Auth->allow(['checkout']);\par
+\b 11 which function is run at first\b0\par
+beforeFilter()\par
+\b 12 how to compare default password haser \par
+\b0 if ((new DefaultPasswordHasher)->check($this->request->data['password'],$old_data[0]['password']))\par
+ \{\par
+\}\b\par
+13 how to check requested methods \par
+\b0 if ($this->request->is(['post','POST']))\par
+14 how to set flash message \par
+$this->Flash->success(__('essage'));\par
+\b 14 controller structure in cake3\par
+\b0 <?\par
+namespace App\\Controller;\par
+class ArticlesController extends AppController\par
+\{\par
+\}\par
+?>\par
+\b 15 how to create a form in cake\b0\par
+<?php\par
+    echo $this->Form->create($article);\par
+    // Hard code the user for now.\par
+    echo $this->Form->control('user_id', ['type' => 'hidden', 'value' => 1]);\par
+    echo $this->Form->control('title');\par
+    echo $this->Form->control('body', ['rows' => '3']);\par
+echo $this->Form->input('Leaf.id', array('type'=>'select', 'label'=>'Leaf', 'options'=>$leafs, 'default'=>'3'));\par
+    echo $this->Form->button(__('Save Article'));\par
+    echo $this->Form->end();\par
+?>\par
+\b 16 how to add a record in cake php (insert edit and delete and select)\par
+\b0     public function index()\par
+    \{\par
+        $articles = $this->Paginator->paginate($this->Articles->find());\par
+        $this->set(compact('articles'));\par
+    \}\par
+    public function add()\par
+    \{\par
+        $article = $this->Articles->newEntity();\par
+        if ($this->request->is('post')) \{\par
+            $article = $this->Articles->patchEntity($article, $this->request->getData());\par
+            $article->user_id = 1;\par
+            if ($this->Articles->save($article)) \{\par
+                $this->Flash->success(__('Your article has been saved.'));\par
+                return $this->redirect(['action' => 'index']);\par
+            \}\par
+            $this->Flash->error(__('Unable to add your article.'));\par
+        \}\par
+        $this->set('article', $article);\par
+    \}\par
+\par
+public function edit($slug)\par
+\{\par
+    $article = $this->Articles->findBySlug($slug)->firstOrFail();\par
+    if ($this->request->is(['post', 'put'])) \{\par
+        $this->Articles->patchEntity($article, $this->request->getData());\par
+        if ($this->Articles->save($article)) \{\par
+            $this->Flash->success(__('Your article has been updated.'));\par
+            return $this->redirect(['action' => 'index']);\par
+        \}\par
+        $this->Flash->error(__('Unable to update your article.'));\par
+    \}\par
+    $this->set('article', $article);\par
+\}\par
+\b // for delete\par
+\b0 public function delete($slug)\par
+\{\par
+    $this->request->allowMethod(['post', 'delete']);\par
+    $article = $this->Articles->findBySlug($slug)->firstOrFail();\par
+    if ($this->Articles->delete($article)) \{\par
+        $this->Flash->success(__('The \{0\} article has been deleted.', $article->title));\par
+        return $this->redirect(['action' => 'index']);\par
+    \}\par
+\}\par
+\b 17 How to validate in model\par
+\b0 // src/Model/Table/ArticlesTable.php\par
+// add this use statement right below the namespace declaration to import\par
+// the Validator class\par
+use Cake\\Validation\\Validator;\par
+// Add the following method.\par
+public function validationDefault(Validator $validator)\par
+\{\par
+    $validator\par
+        ->notEmpty('title')\par
+        ->minLength('title', 10)\par
+        ->maxLength('title', 255)\par
+        ->notEmpty('body')\par
+        ->minLength('body', 10);\par
+    return $validator;\par
+\}\par
+\b 18 how to create a link\par
+\b0 <?= $this->Html->link($article->title, ['action' => 'view', $article->slug]) ?>\par
+\b 19 how to write and read cookie in \par
+\b0 use Cake\\Http\\Cookie\\Cookie;\par
+\b // Add a cookie as an array using the immutable API (3.4.0+)\par
+\b0 $this->response = $this->response->withCookie('remember_me', [\par
+    'value' => 'yes',\par
+    'path' => '/',\par
+    'httpOnly' => true,\par
+    'secure' => false,\par
+    'expire' => strtotime('+1 year')\par
+]);\par
+\b for getting the cookie\par
+\b0 // Get the cookie value, or null if the cookie is missing.\par
+$rememberMe = $this->request->getCookie('remember_me');\par
+\b 20 how to create a cache in cakephp\par
+\b0 use Cake\\Cache\\Cache;\par
+if (($posts = Cache::read('posts')) === false) \{\par
+    $posts = $someService->getAllPosts();\par
+    Cache::write('posts', $posts);\par
+\}\par
+\b second\par
+\b0 $cloud = Cache::read('cloud');\par
+if ($cloud !== false) \{\par
+    return $cloud;\par
+\}\par
+// Generate cloud data\par
+Cache::write('cloud', $cloud);\par
+return $cloud;\par
+\b 21 how to show pagination in view \par
+in controller\par
+    public function initialize()\par
+    \{\par
+        parent::initialize();\par
+        $this->loadComponent('Paginator');\par
+    \}\par
+public $paginate = [\par
+        'limit' => 25,\par
+        'order' => [\par
+            'Articles.title' => 'asc'\par
+        ]\par
+    ];\par
+\b0         $articles = $this->Paginator->paginate($this->Articles->find());\par
+<div class="paging btn-group page-buttons">\par
+    <?php\par
+    echo $this->Paginator->prev('< ' . __d('users', 'previous'), array('class' => 'btn btn-default prev', 'tag' => 'button'), null, array('class' => 'btn btn-default prev disabled', 'tag' => 'button'));\par
+    echo $this->Paginator->numbers(array('separator' => '', 'class' => 'btn btn-default', 'currentClass' => 'disabled', 'tag' => 'button'));\par
+    echo $this->Paginator->next(__d('users', 'next') . ' >', array('class' => 'btn btn-default next', 'tag' => 'button'), null, array('class' => 'btn btn-default next disabled', 'tag' => 'button'));\par
+    ?>\par
+</div>\par
+\b 22. what is Middleware \par
+\b0 Middleware  is a layer between request and response. midleware is wrapped aroud the app like an onion. hen a request is handled by your application it enters from the outermost middleware. Each middleware can either delegate the request/response to the next layer, or return a response.\par
+23. How to find the multiple column count in same query in mysql\par
+SELECT SUM(rating_value != '') AS followerCount,\par
+   SUM(rating_value = 4) AS followingCount\par
+FROM `tbl_ratings`\par
+\b 23. php function\b0\par
+*   is_dir($directory_name);  // directory name is appear or not\par
+*  mkdir($this->cacheDir, 0777, true );  // used to create the directory\par
+\par
+if(!is_readable($this->_dir) || !is_writable($this->_dir))\par
+        \{\par
+            if(!chmod($this->_dir, 0775))\par
+            \{\par
+                throw new Exception("Cache directory must be readable and writable ($this->_dir)");\par
+            \}\par
+        \}\par
+\par
+\b\fs24 24. Array functions in php\par
+* array_chunk()  :  \par
+\b0 The array_chunk() function splits an array into chunks of new arrays.it make a new array with given number of element.\par
+$cars=array("Volvo","BMW","Toyota","Honda","Mercedes","Opel");\par
+$cars=array("Volvo","BMW","Toyota","Honda","Mercedes","Opel");\par
+print_r(array_chunk($cars,2));\par
+\par
+Array ( [0] => Array ( [0] => Volvo [1] => BMW ) [1] => Array ( [0] => Toyota [1] => Honda ) [2] => Array ( [0] => Mercedes [1] => Opel ) )\par
+\b * array_change_key_case()\par
+\b0 $age=array("Peter"=>"35","Ben"=>"37","Joe"=>"43");\par
+print_r(array_change_key_case($age,CASE_UPPER));\par
+\b * array_column($a, 'last_name')\par
+\b0 find the all value of given key and return in indexed array.\par
+$a = array(array('id' => 5698,'first_name' => 'Peter','last_name' => 'Griffin',),\par
+     array('id' => 4767,'first_name' => 'Ben','last_name' => 'Smith',)  \par
+);\par
+\cf1 // output\cf0\par
+print_r(array_column($a, 'last_name'));\par
+//Array ( [0] => Griffin [1] => Smith )\par
+\b *  array_combine($fname,$age)\par
+\b0 Create an array by using the elements from one "keys" array and one "values" array:\par
+$fname=array("Peter","Ben","Joe");\par
+$age=array("35","37","43");\par
+$c=array_combine($fname,$age);\par
+print_r($c);\par
+//  Array ( [Peter] => 35 [Ben] => 37 [Joe] => 43 )\par
+\b * array_count_values()\par
+\b0\fs22 Counts all the values of an array\par
+\b *  array_diff($a2,$a1);\par
+\b0 $a1=array("a"=>"red","b"=>"green","c"=>"blue","d"=>"yellow");\par
+$a2=array("e"=>"red","f"=>"green","g"=>"blue");\par
+$result=array_diff($a2,$a1);\par
+\b * array_fill(3,4,"blue")\par
+\b0 Fill an array with values:\par
+Array ( [3] => blue [4] => blue [5] => blue [6] => blue )\par
+\b * array_fill_keys()\par
+\b0 $keys=array("a","b","c","d");\par
+$a1=array_fill_keys($keys,"blue");\par
+// Array ( [a] => blue [b] => blue [c] => blue [d] => blue )\par
+\b * array_replace($a1,$a2)\par
+\b0 $a1=array("red","green");\par
+$a2=array("blue","yellow");\par
+print_r(array_replace($a1,$a2));\par
+// Array ( [0] => blue [1] => yellow )\par
+\b\fs24 * Filters of php\par
+\b0 Validating data = Determine if the data is in proper form.\par
+Sanitizing data = Remove any illegal character from the data.\par
+$newstr = filter_var($str, FILTER_SANITIZE_STRING);\par
+if (!filter_var($int, FILTER_VALIDATE_INT) === false)\par
+\par
+\b * How to get the list of filters\par
+\b0   foreach (filter_list() as $id =>$filter) \{\par
+      echo '<tr><td>' . $filter . '</td><td>' . filter_id($filter) . '</td></tr>';\par
+  \}\par
+\b * How to print the max and second max in one query in two column fist , second\par
+\b0 SELECT MAX(salary) max_salary,\par
+  (SELECT MAX(salary)\par
+   FROM Employee\par
+   WHERE salary NOT IN\par
+       (SELECT MAX(salary)\par
+        FROM Employee)) 2nd_max_salary\par
+FROM Employee\par
+\b *  Find the number, dealer, and price of the most expensive article.\par
+\b0 SELECT article, dealer, price\par
+FROM   shop\par
+WHERE  price=(SELECT MAX(price) FROM shop);\par
+**** 2\par
+SELECT article, dealer, price\par
+FROM shop\par
+ORDER BY price DESC\par
+LIMIT 1;\par
+\b * How to find latest two comment of each post \par
+\b0 select p.content post_content,\par
+       c.content comment_content\par
+from posts p\par
+left join comments c on \par
+    (p.id=c.post)\par
+    and \par
+    c.id>\par
+    (select id from comments  \par
+        where post=p.id\par
+        order by id DESC LIMIT 2,1)\par
+}
+ 
